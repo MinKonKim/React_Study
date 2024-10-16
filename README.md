@@ -17,7 +17,7 @@
 
 ## 📚 자료 및 문서
 - [리액트 훅 인 액션 교재]
-![코어자바스크립트 사진]https://contents.kyobobook.co.kr/sih/fit-in/400x0/pdt/9791189909611.jpg
+![코어자바스크립트 사진](https://contents.kyobobook.co.kr/sih/fit-in/400x0/pdt/9791189909611.jpg)
 
 
 
