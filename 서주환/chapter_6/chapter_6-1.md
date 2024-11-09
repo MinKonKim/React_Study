@@ -37,7 +37,4 @@ export default function Colors() {
 
 ![IMG_0348](https://github.com/user-attachments/assets/c8e5b500-703a-4562-9d68-b7aaa28f6034)
 
-## 컴포넌트를 더 작은 조각으로 분리
 
-- 컴포넌트를 더 큰 앱의 일부분으로 바라보기
-- 페이지 UI 안에서 여러 컴포넌트를 조직화하기
