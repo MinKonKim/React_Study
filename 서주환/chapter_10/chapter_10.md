@@ -39,6 +39,7 @@ searchParams 변수에는 현재 쿼리 문자열이 {key: value} 형태로 저�
 <br/><br/>
 
 ### *활용 예시*
+
 #### 1. 검색기능 구현
 - 서버에 get 요청을 보낼 때 사용자가 검색창에 입력한 데이터를 쿼리 문자열에 포함시켜 내보내면 검색 결과를 렌더링 하는데 활용할 수 있다.
 
@@ -140,17 +141,16 @@ function ShareablePage() {
 ```
 
 ## useNavigate
-: 현재 위치에서 다른 경로로 이동하는 기능을 제공하는 리액트 라우트 돔 라이브러리에서 제공하는 훅. <br/>
-컴포넌트 내부에서 사용할 수 있으며 현재 위치에서 다른 경로로 이동하는 기능을 제공하는 함수를 반환한다.
-
-<br/>
+1-현재 위치에서 다른 경로로 이동하는 기능을 제공하는 리액트 라우트 돔 라이브러리에서 제공하는 훅. <br/>
+컴포넌트 내부에서 사용할 수 있으며 현재 위치에서 다른 경로로 이동하는 기능을 제공하는 함수를 반환한다. <br/>
+2-React Application 에서 서버의 상태를 불러오고, 캐싱하며, 지속적으로 동기화하고 업데이트 하는 작업을 도와주는 라이브러리이며, Hook 을 사용하여 React Component 내부에서 자연스럽게 서버의 데이터를 사용할 수 있는 방법을 제공
 
 - 사용목적: 프로그래매틱 네비게이션
 - 사용방식: 훅으로 사용
 - 주요 특징:
    1.함수 형태로 호출, 페이지 이동
-   2. 조건부 라우팅이나 복잡한 네비게이션 로직에 젃합
-   3. 뒤로가기, 리다이렉트 등 추가 기능 제공
+   1. 조건부 라우팅이나 복잡한 네비게이션 로직에 젃합
+   2. 뒤로가기, 리다이렉트 등 추가 기능 제공
 
 ```jsx
 import { useNavigate } from 'react-router-dom';
@@ -235,9 +235,11 @@ function Component() {
 ## React-Query
 : 리액트 쿼리는 서버 상태 관리를 위한 강력한 라이브러리입니다. 기존 상태 관리 도구들(Redux, Recoil, Context API, Zustand 등)이 클라이언트 상태 관리에 중점을 둔 것과 달리, 리액트 쿼리는 서버 데이터 관리에 특화되어 있습니다.
 
-#### 주요 특징
+:
 
-1. 강력한 캐싱 시스템
+#### <주요 특징>
+
+1. 캐싱
 
 ```jsx
 // 기본적인 쿼리 사용 예시
@@ -390,4 +392,155 @@ const queryClient = new QueryClient({
 });
 ```
 
->참고 블로그 : https://tech.kakaopay.com/post/react-query-1/
+>참고 블로그 : 1) https://tech.kakaopay.com/post/react-query-1/
+2)https://maintainhoon.vercel.app/blog/post/react_query
+
+<br/><br/>
+
+## useMutation
+: React Query 에서 제공하는 훅으로, 데이터 변이(Mutation) 작업을 처리하는 데 사용된다. 데이터 변이는 주로 서버에 데이터를 생성, 업데이트, 삭제하는 작업을 의미한다. <br/>
+: 서버 상태 변경 작업을 매우 효율적으로 관리할 수 있게 해주며, 복잡한 비동기 로직을 단순화하고 안정적으로 처리할 수 있게 해줍니다.
+
+<br/>
+
+#### <주요 특징>
+
+1. 비동기 상태 관리
+  - 로딩, 에러, 성공 상태를 자동으로 관리
+  - Mutation 진행 상태를 실시간으로 추적
+2. 자동 에러 처리
+  - 네트워크 오류나 서버 에러를 자동으로 처리
+  - 재시도 로직 내장
+3. 낙관적 업데이트(Optimistic Update)지원
+  - 서버 응답 전에 UI를 먼저 업데이트
+  - 실패시 자동 롤백
+
+<br/>
+
+```jsx
+function TodoApp() {
+  const mutation = useMutation({
+    mutationFn: (newTodo) => {
+      return axios.post('/api/todos', newTodo);
+    },
+    onSuccess: (data) => {
+      console.log('할일이 성공적으로 추가되었습니다:', data);
+      // 캐시 무효화 및 쿼리 재실행
+      queryClient.invalidateQueries({ queryKey: ['todos'] });
+    },
+    onError: (error) => {
+      console.error('에러 발생:', error);
+    }
+  });
+
+  const handleSubmit = (todo) => {
+    mutation.mutate(todo);
+  };
+
+  return (
+    <div>
+      {mutation.isLoading ? (
+        '추가 중...'
+      ) : (
+        <>
+          {mutation.isError ? (
+            <div>에러 발생: {mutation.error.message}</div>
+          ) : null}
+
+          {mutation.isSuccess ? <div>할일이 추가되었습니다!</div> : null}
+        </>
+      )}
+    </div>
+  );
+}
+```
+
+
+<br/>
+
+### *활용 예시*
+
+### 1. 낙관적 업데이트 구현
+
+```typescript
+const mutation = useMutation({
+  mutationFn: updateTodo,
+  onMutate: async (newTodo) => {
+    // 진행 중인 refetch 취소
+    await queryClient.cancelQueries({ queryKey: ['todos'] });
+
+    // 이전 값 저장
+    const previousTodos = queryClient.getQueryData(['todos']);
+
+    // 낙관적으로 캐시 업데이트
+    queryClient.setQueryData(['todos'], (old) => [...old, newTodo]);
+
+    // context 객체 반환
+    return { previousTodos };
+  },
+  onError: (err, newTodo, context) => {
+    // 에러 발생 시 이전 상태로 롤백
+    queryClient.setQueryData(['todos'], context.previousTodos);
+  },
+  onSettled: () => {
+    // 완료 후 데이터 리프레시
+    queryClient.invalidateQueries({ queryKey: ['todos'] });
+  },
+});
+```
+
+<br/>
+
+### 2. 여러 뮤테이션 연계 처리
+
+```typescript
+const mutation = useMutation({
+  mutationFn: async (data) => {
+    // 순차적 처리
+    const result1 = await firstMutation(data);
+    const result2 = await secondMutation(result1);
+    return result2;
+  },
+  onSuccess: (data, variables, context) => {
+    // 연관된 쿼리들 무효화
+    queryClient.invalidateQueries({ queryKey: ['todos'] });
+    queryClient.invalidateQueries({ queryKey: ['user-stats'] });
+  }
+});
+```
+
+<br/>
+
+1. **타입스크립트와 함께 사용**
+
+```typescript
+type Todo = {
+  id: number;
+  title: string;
+  completed: boolean;
+};
+
+const mutation = useMutation<Todo, Error, { title: string }>({
+  mutationFn: (newTodo) => {
+    return axios.post<Todo>('/api/todos', newTodo);
+  }
+});
+```
+
+<br/>
+
+2. **에러 처리 강화**
+
+```typescript
+const mutation = useMutation({
+  mutationFn: updateTodo,
+  retry: 3,
+  retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  onError: (error) => {
+    if (error.response?.status === 401) {
+      // 인증 에러 처리
+      navigate('/login');
+    }
+  }
+});
+```
