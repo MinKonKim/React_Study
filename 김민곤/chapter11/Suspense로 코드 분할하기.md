@@ -28,23 +28,7 @@ MyComponent().then((module) => {
 `import()` 함수는 Promise를 반환하며, 이를 통해 필요한 모듈을 비동기로 가져올 수 있습니다.
 코드 분할의 핵심은 `import()`를 사용하여 필요한 모듈을 비동기로 가져오는 것입니다.
 
-### 예시 코드:
-```javascript
-// 기존의 정적 import
-import MyComponent from './MyComponent';
-
-// 동적 import
-const MyComponent = () => import('./MyComponent');
-
-MyComponent().then((module) => {
-  const Component = module.default;
-  // Component를 이용해 추가 로직 실행
-});
-```
-`import()` 함수는 Promise를 반환하며, 이를 통해 필요한 모듈을 비동기로 가져올 수 있습니다.
-
 ---
-
 ## **React.lazy로 필요할 때 컴포넌트 적재하기**
 `React.lazy`는 동적 임포트된 모듈을 React 컴포넌트로 변환해줍니다. 이를 통해 초기 로드 시점에 불필요한 컴포넌트를 제외하고, 실제 사용 시점에만 로드되도록 하여 성능을 최적화할 수 있습니다.
 
