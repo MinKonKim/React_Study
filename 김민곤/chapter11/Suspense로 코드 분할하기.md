@@ -145,6 +145,8 @@ function CustomErrorBoundary({ children }) {
 
 ```javascript
 class RecoverableErrorBoundary extends React.Component {
+  // 이 클래스는 React의 오류 경계 기능을 확장하여 '복구 가능한 오류 경계'를 제공
+  // 오류 발생 시 사용자에게 대체 UI를 제공하고, 복구를 시도할 수 있는 메커니즘을 포함합니다.
   constructor(props) {
     super(props);
     this.state = { hasError: false };
@@ -155,6 +157,8 @@ class RecoverableErrorBoundary extends React.Component {
   }
 
   handleReset = () => {
+    // 사용자가 'Try Again' 버튼을 클릭했을 때 오류 상태를 초기화합니다.
+    // 이를 통해 UI를 정상적으로 리렌더링할 수 있도록 합니다.
     this.setState({ hasError: false });
   };
 
@@ -171,6 +175,24 @@ class RecoverableErrorBoundary extends React.Component {
   }
 }
 ```
+- 이 클래스가 클래스형 컴포넌트로 작성된 이유는 React의 오류 경계(Error Boundary) 기능이 클래스 컴포넌트에서만 지원되기 때문입니다.
+- 현재 React에서는 함수형 컴포넌트로 오류 경계를 구현할 수 없습니다.
+- 따라서 오류 경계를 사용해야 할 경우, 클래스형 컴포넌트로 작성하는 것이 필수적입니다.
+
+### RecoverableErrorBoundary 클래스 사용법
+```javascript
+import RecoverableErrorBoundary from './RecoverableErrorBoundary';
+import SomeComponent from './SomeComponent';
+
+function App() {
+  return (
+    <RecoverableErrorBoundary>
+      <SomeComponent />
+    </RecoverableErrorBoundary>
+  );
+}
+```
+
 ### 추가 개념 정리
 
 - `Error Boundary`와 `try-catch`의 차이점:
